@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+}
+
+// 주문
+model Order {
+  id         Int         @id @default(autoincrement())
+  customerId Int         @map("customer_id") // 고객 account_id
+  status     OrderStatus @default(PENDING) // 주문 상태
+  orderNo    String      @unique @map("order_no") // 주문 번호
+  totalPrice Int         @map("total_price") // 총 주문 가격
+
+  createdAt DateTime  @default(now()) @map("created_at") // 생성일
+  updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
+  deletedAt DateTime? @map("deleted_at") // 삭제일
+
+  createdById Int       @map("created_by_id") @db.Integer // 생성한 유저
+  updateById  Int?      @map("updated_by_id") @db.Integer // 수정한 유저
+  deleteById  Int?      @map("deleted_by_id") @db.Integer // 삭제한 유저
+  payments    Payment[]
+  Refund      Refund?
+
+  @@index([customerId, status, orderNo])
+  @@map("order")
+}
+
+// 결제
+model Payment {
+  id         Int     @id @default(autoincrement())
+  orderId    Int     @map("order_id") // 주문 ID
+  status     String  @default("PENDING") @db.VarChar(10) // 결제 상태
+  amount     Int     @db.Integer // 결제 금액
+  paymentKey String  @map("payment_key") @db.VarChar(200) // 결제 Key
+  method     String? @db.VarChar(10) // 결제 수단
+  provider   String? @db.VarChar(20) // 결제 PG사
+
+  requestedAt DateTime  @default(now()) @map("requested_at")
+  approvedAt  DateTime? @map("approved_at")
+
+  order  Order   @relation(fields: [orderId], references: [id])
+  Refund Refund?
+
+  @@index([orderId, status, method, provider])
+  @@map("payment")
+}
+
+// 환불
+model Refund {
+  id          Int      @id @default(autoincrement())
+  paymentId   Int      @unique @map("payment_id") // 결제 ID
+  orderId     Int      @unique @map("order_id") // 주문 ID
+  status      String   @default("PENDING") @db.VarChar(10) // 환불 상태
+  amount      Int      @db.Integer // 환불 금액
+  requestedAt DateTime @default(now()) @map("requested_at")
+  refundedAt  DateTime @map("refunded_at")
+
+  order   Order   @relation(fields: [orderId], references: [id]) // 주문
+  payment Payment @relation(fields: [paymentId], references: [id]) // 결제
+
+  @@index([paymentId, orderId, status])
+  @@map("refund")
+}
+
+// 상품
+model Product {
+  id         Int    @id @default(autoincrement())
+  name       String @db.VarChar(50)
+  price      Int    @db.Integer // 상품 가격
+  categoryId Int    @map("category_id") // 카테고리 ID
+
+  createdAt DateTime  @default(now()) @map("created_at") // 생성일
+  updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
+  deletedAt DateTime? @map("deleted_at") // 삭제일
+
+  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@map("product")
+}
+
+// 주문 상품
+model OrderItem {
+  id           Int    @id @default(autoincrement())
+  productId    Int    @map("product_id") // 상품 ID
+  productName  String @db.VarChar(50) //  주문 당시  상품명
+  productPrice Int    @db.Integer // 주문 당시 상품 가격
+  quantity     Int    @db.Integer // 수량
+
+  createdAt DateTime  @default(now()) @map("created_at") // 생성일
+  updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
+  deletedAt DateTime? @map("deleted_at") // 삭제일
+
+  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+
+  product Product @relation(fields: [productId], references: [id]) // 상품
+
+  @@index([productId])
+  @@map("order_item")
+}
+
+// 카테고리
+model Category {
+  id       Int    @id @default(autoincrement())
+  name     String @unique @db.VarChar(50)
+  parentId Int?   @map("parent_id") @db.Integer // 상위 카테고리 ID. 최상위의 경우 Null
+
+  createdAt DateTime  @default(now()) @map("created_at") // 생성일
+  updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
+
+  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
+
+  @@index([name])
+  @@map("category")
+}
+
+////// 할인 추후 개발
+enum DiscountType {
+  AMOUNT // 금액 할인
+  PERCENTAGE // 비율 할인
+}
+
+// 할인
+model Discount {
+  id       Int          @id @default(autoincrement())
+  name     String       @db.VarChar(50) // 할인 이름
+  type     DiscountType // 할인 유형
+  value    Float // 할인 값 (percentage or amount)
+  isActive Boolean      @default(false) @map("is_active")
+
+  validFrom  DateTime @map("valid_from") // 할인 시작일
+  validUntil DateTime @map("valid_until") // 할인 종료일
+
+  targets DiscountTarget[]
+
+  @@index([isActive, validFrom, validUntil, type])
+  @@map("discount")
+}
+
+// 할인 적용 대상
+model DiscountTarget {
+  id         Int  @id @default(autoincrement())
+  discountId Int  @map("discount_id")
+  productId  Int? @map("product_id") // 특정 상품에 대한 할인
+  categoryId Int? @map("category_id") // 특정 카테고리에 대한 할인
+
+  Discount Discount? @relation(fields: [discountId], references: [id])
+
+  @@map("discount_target")
+}
