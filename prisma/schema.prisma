@@ -41,7 +41,7 @@ model Order {
   updateById  Int?      @map("updated_by_id") @db.Integer // 수정한 유저
   deleteById  Int?      @map("deleted_by_id") @db.Integer // 삭제한 유저
   payments    Payment[]
-  Refund      Refund?
+  refund      Refund?
 
   @@index([customerId, status, orderNo])
   @@map("order")
@@ -61,7 +61,7 @@ model Payment {
   approvedAt  DateTime? @map("approved_at")
 
   order  Order   @relation(fields: [orderId], references: [id])
-  Refund Refund?
+  refund Refund?
 
   @@index([orderId, status, method, provider])
   @@map("payment")
@@ -100,7 +100,7 @@ model Product {
   deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   orderItems OrderItem[]
-  Cart       Cart[]
+  cart       Cart[]
 
   @@index([categoryId])
   @@map("product")
@@ -175,7 +175,7 @@ model DiscountTarget {
   productId  Int? @map("product_id") // 특정 상품에 대한 할인
   categoryId Int? @map("category_id") // 특정 카테고리에 대한 할인
 
-  Discount Discount? @relation(fields: [discountId], references: [id])
+  discount Discount? @relation(fields: [discountId], references: [id])
 
   @@map("discount_target")
 }
