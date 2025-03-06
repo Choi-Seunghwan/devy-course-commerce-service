@@ -86,16 +86,17 @@ model Refund {
 
 // 상품
 model Product {
-  id         Int    @id @default(autoincrement())
-  name       String @db.VarChar(50)
-  price      Int    @db.Integer // 상품 가격
-  categoryId Int?   @map("category_id") // 카테고리 ID
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(50)
+  price      Int      @db.Integer // 상품 가격
+  categoryId Int?     @map("category_id") // 카테고리 ID
+  images     String[] @default([]) // 상품 이미지
 
   createdAt DateTime  @default(now()) @map("created_at") // 생성일
   updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
-  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  createdById Int? @map("created_by_id") @db.Integer // 생성한 유저
   updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
   deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
@@ -138,7 +139,7 @@ model Category {
   updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
-  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  createdById Int? @map("created_by_id") @db.Integer // 생성한 유저
   updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
   deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
@@ -199,3 +200,9 @@ model Cart {
   @@index([customerId, productId])
   @@map("cart")
 }
+
+// TODO 확장성 고려하여, 이미지 테이블 추가
+// model Images { 
+//   id Int @id @default(autoincrement())
+//   url String
+// }
