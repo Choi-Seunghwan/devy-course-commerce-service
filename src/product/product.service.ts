@@ -5,10 +5,18 @@ import { productRepository } from './product.repository';
 export class ProductService {
   constructor(private readonly productRepository: productRepository) {}
 
-  async getProducts() {
-    return await this.productRepository.findAll({
-      orderBy: { createdAt: 'desc' },
-    });
+  async getProducts(query: { page?: number; size?: number }) {
+    const result = await this.productRepository.findManyWithPaging(
+      {
+        orderBy: { createdAt: 'desc' },
+      },
+      { page: query.page, size: query.size },
+    );
+
+    return {
+      items: result.items,
+      total: result.total,
+    };
   }
 
   async getProduct(id: number) {

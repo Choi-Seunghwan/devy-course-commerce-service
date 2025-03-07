@@ -15,12 +15,23 @@ export class productRepository {
     };
   }
 
-  async findAll(args: Prisma.ProductFindManyArgs) {
-    return await this.prisma.product.findMany({
+  async findManyWithPaging(
+    args: Prisma.ProductFindManyArgs,
+    paging: { page: number; size: number },
+  ) {
+    const total = await this.prisma.product.count({
+      where: { ...args.where, deletedAt: null },
+    });
+
+    const items = await this.prisma.product.findMany({
       ...args,
+      skip: (paging.page - 1) * paging.size,
+      take: paging.size,
       where: { ...args.where, deletedAt: null },
       omit: this.getOmit(),
     });
+
+    return { total, items };
   }
 
   async findById(id: number) {
