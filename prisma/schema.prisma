@@ -92,6 +92,9 @@ model Product {
   categoryId Int?     @map("category_id") // 카테고리 ID
   images     String[] @default([]) // 상품 이미지
 
+  // TODO ProductDetail 상품 소개 페이지용 테이블 생성
+  description String? @db.Text // 상품 설명
+
   createdAt DateTime  @default(now()) @map("created_at") // 생성일
   updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
   deletedAt DateTime? @map("deleted_at") // 삭제일
