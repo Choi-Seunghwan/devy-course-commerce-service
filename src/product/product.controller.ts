@@ -26,9 +26,9 @@ export class ProductController {
   }
 
   @ApiOkResponse({ type: ProductResponseDto })
-  @Get('/:id')
+  @Get('/:productId')
   async getProduct(@Param() param: GetProductDto) {
-    const result = await this.productService.getProduct(param.id);
+    const result = await this.productService.getProduct(param.productId);
     return result;
   }
 }
