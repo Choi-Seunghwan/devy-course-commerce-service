@@ -15,6 +15,10 @@ export class productRepository {
     };
   }
 
+  private getOrderBy(): Prisma.ProductOrderByWithAggregationInput[] {
+    return [{ id: 'desc' }, { createdAt: 'desc' }];
+  }
+
   async findManyWithPaging(
     args: Prisma.ProductFindManyArgs,
     paging: { page: number; size: number },
@@ -28,6 +32,7 @@ export class productRepository {
       skip: (paging.page - 1) * paging.size,
       take: paging.size,
       where: { ...args.where, deletedAt: null },
+      orderBy: this.getOrderBy(),
       omit: this.getOmit(),
     });
 
