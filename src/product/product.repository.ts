@@ -1,19 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { getProductOmitFields } from 'src/common/omit/product.omit';
 import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
 export class productRepository {
   constructor(private readonly prisma: PrismaService) {}
-
-  private getOmit() {
-    return {
-      createdById: true,
-      updateById: true,
-      deleteById: true,
-      deletedAt: true,
-    };
-  }
 
   private getOrderBy(): Prisma.ProductOrderByWithAggregationInput[] {
     return [{ id: 'desc' }, { createdAt: 'desc' }];
@@ -33,7 +25,7 @@ export class productRepository {
       take: paging.size,
       where: { ...args.where, deletedAt: null },
       orderBy: this.getOrderBy(),
-      omit: this.getOmit(),
+      omit: getProductOmitFields(),
     });
 
     return { total, items };
@@ -42,7 +34,7 @@ export class productRepository {
   async findById(id: number) {
     return await this.prisma.product.findUnique({
       where: { id, deletedAt: null },
-      omit: this.getOmit(),
+      omit: getProductOmitFields(),
     });
   }
 }

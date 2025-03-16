@@ -204,7 +204,7 @@ model Cart {
   @@map("cart")
 }
 
-// TODO 확장성 고려하여, 이미지 테이블 추가
+// TODO 확장성 고려하여, 이미지 테이블 추가 MSA Common Server or Media Server
 // model Images { 
 //   id Int @id @default(autoincrement())
 //   url String

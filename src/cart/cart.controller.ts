@@ -11,7 +11,7 @@ import {
 import { CartService } from './cart.service';
 import { AuthGuard, JwtPayload, User } from '@choi-seunghwan/authorization';
 import { AddToCartDto } from './dtos/add-to-cart.dto';
-import { UpdateCartDto } from './dtos/update-cart.dto';
+import { UpdateCartQuantityDto } from './dtos/update-cart-quantity.dto'; // ✅ 새로 추가 (cartId, quantity)
 
 @Controller('cart')
 export class CartController {
@@ -26,21 +26,27 @@ export class CartController {
   @UseGuards(AuthGuard)
   @Post('/')
   async addToCart(@User() user: JwtPayload, @Body() dto: AddToCartDto) {
-    return await this.cartService.addToCart(
+    await this.cartService.addToCart(
       user.accountId,
       dto.productId,
       dto.quantity,
     );
+    return true;
   }
 
   @UseGuards(AuthGuard)
-  @Patch('/')
-  async updateCart(@User() user: JwtPayload, @Body() dto: UpdateCartDto) {
-    return await this.cartService.updateCart(
+  @Patch('/:cartId')
+  async updateCartQuantity(
+    @User() user: JwtPayload,
+    @Param('cartId') cartId: number,
+    @Body() dto: UpdateCartQuantityDto,
+  ) {
+    await this.cartService.updateCartQuantity(
       user.accountId,
-      dto.productId,
+      Number(cartId),
       dto.quantity,
     );
+    return true;
   }
 
   @UseGuards(AuthGuard)
@@ -49,6 +55,7 @@ export class CartController {
     @User() user: JwtPayload,
     @Param('cartId') cartId: number,
   ) {
-    return await this.cartService.removeFromCart(Number(cartId));
+    await this.cartService.removeFromCart(user.accountId, Number(cartId));
+    return true;
   }
 }

@@ -14,11 +14,7 @@ export class CartService {
     return await this.cartRepository.findByCustomerId(customerId);
   }
 
-  async addToCart(
-    customerId: number,
-    productId: number,
-    quantity: number,
-  ): Promise<Cart> {
+  async addToCart(customerId: number, productId: number, quantity: number) {
     const product = await this.productService.getProduct(productId);
 
     if (!product) throw new NotFoundException('Product not found');
@@ -29,7 +25,7 @@ export class CartService {
     );
 
     if (existingCartItem) {
-      return await this.cartRepository.updateCart(
+      return await this.cartRepository.updateCartQuantity(
         existingCartItem.id,
         existingCartItem.quantity + quantity,
       );
@@ -38,24 +34,29 @@ export class CartService {
     return await this.cartRepository.addToCart(customerId, productId, quantity);
   }
 
-  async updateCart(
+  async updateCartQuantity(
     customerId: number,
-    productId: number,
+    cartId: number,
     quantity: number,
-  ): Promise<Cart> {
-    const cartItem = await this.cartRepository.findByCustomerAndProduct(
+  ) {
+    const cartItem = await this.cartRepository.findByCustomerAndId(
       customerId,
-      productId,
+      cartId,
     );
 
-    if (!cartItem) {
-      throw new NotFoundException('Cart item not found');
-    }
+    if (!cartItem) throw new NotFoundException('Cart item not found');
 
-    return await this.cartRepository.updateCart(cartItem.id, quantity);
+    return await this.cartRepository.updateCartQuantity(cartId, quantity);
   }
 
-  async removeFromCart(cartId: number): Promise<Cart> {
+  async removeFromCart(customerId: number, cartId: number) {
+    const cartItem = await this.cartRepository.findByCustomerAndId(
+      customerId,
+      cartId,
+    );
+
+    if (!cartItem) throw new NotFoundException('Cart item not found');
+
     return await this.cartRepository.removeFromCart(cartId);
   }
 }
