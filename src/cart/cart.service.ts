@@ -10,9 +10,16 @@ export class CartService {
     private readonly productService: ProductService,
   ) {}
 
+  /**
+   * Cart 조회
+   */
   async getCart(customerId: number): Promise<Cart[]> {
     return await this.cartRepository.findByCustomerId(customerId);
   }
+
+  /**
+   * Cart 상품 추가
+   */
 
   async addToCart(customerId: number, productId: number, quantity: number) {
     const product = await this.productService.getProduct(productId);
@@ -34,6 +41,10 @@ export class CartService {
     return await this.cartRepository.addToCart(customerId, productId, quantity);
   }
 
+  /**
+   * Cart 상품 수량 변경
+   */
+
   async updateCartQuantity(
     customerId: number,
     cartId: number,
@@ -49,6 +60,10 @@ export class CartService {
     return await this.cartRepository.updateCartQuantity(cartId, quantity);
   }
 
+  /**
+   * Cart 상품 삭제
+   */
+
   async removeFromCart(customerId: number, cartId: number) {
     const cartItem = await this.cartRepository.findByCustomerAndId(
       customerId,
@@ -58,5 +73,12 @@ export class CartService {
     if (!cartItem) throw new NotFoundException('Cart item not found');
 
     return await this.cartRepository.removeFromCart(cartId);
+  }
+
+  /**
+   * Order 완료 후 Cart 상품 삭제
+   */
+  async clearCartAfterOrder(customerId: number, productIds: number[]) {
+    await this.cartRepository.clearCartItems(customerId, productIds);
   }
 }

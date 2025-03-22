@@ -61,4 +61,15 @@ export class CartRepository {
       omit: this.getOmit(),
     });
   }
+
+  async clearCartItems(customerId: number, productIds: number[]) {
+    return await this.prisma.cart.updateMany({
+      where: {
+        customerId,
+        productId: { in: productIds },
+        deletedAt: null,
+      },
+      data: { deletedAt: new Date() },
+    });
+  }
 }

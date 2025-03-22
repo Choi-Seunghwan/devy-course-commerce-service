@@ -37,11 +37,13 @@ model Order {
   updatedAt DateTime? @updatedAt @map("updated_at") // 수정일
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
-  createdById Int       @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int?      @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int?      @map("deleted_by_id") @db.Integer // 삭제한 유저
-  payments    Payment[]
-  refund      Refund?
+  createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
+  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+
+  orderItems OrderItem[]
+  payments   Payment[]
+  refund     Refund?
 
   @@index([customerId, status, orderNo])
   @@map("order")
@@ -114,6 +116,7 @@ model Product {
 model OrderItem {
   id           Int    @id @default(autoincrement())
   productId    Int    @map("product_id") // 상품 ID
+  orderId      Int    @map("order_id") // 주문 ID
   productName  String @db.VarChar(50) //  주문 당시  상품명
   productPrice Int    @db.Integer // 주문 당시 상품 가격
   quantity     Int    @db.Integer // 수량
@@ -126,6 +129,7 @@ model OrderItem {
   updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
   deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
+  order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id]) // 상품
 
   @@index([productId])

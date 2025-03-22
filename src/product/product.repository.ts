@@ -37,4 +37,12 @@ export class productRepository {
       omit: getProductOmitFields(),
     });
   }
+
+  async findByIds(ids: number[]) {
+    return await this.prisma.product.findMany({
+      where: { id: { in: ids }, deletedAt: null },
+      orderBy: this.getOrderBy(),
+      omit: getProductOmitFields(),
+    });
+  }
 }

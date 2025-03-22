@@ -28,4 +28,8 @@ export class ProductService {
 
     return product;
   }
+
+  async getProductsByIds(productIds: number[]) {
+    return await this.productRepository.findByIds(productIds);
+  }
 }
