@@ -14,15 +14,18 @@ datasource db {
 }
 
 enum OrderStatus {
-  PENDING
-  COMPLETED
-  CANCELED
+  PENDING // 결제 대기
+  READY // 준비중
+  DELIVERING // 배송 중
+  COMPLETED // 완료
+  CANCELED // 취소
 }
 
 enum PaymentStatus {
-  PENDING
-  APPROVED
-  CANCELED
+  PENDING // 결제 대기
+  PAID // 결제 완료
+  CANCELED // 취소
+  REFUNDED // 환불
 }
 
 // 주문
@@ -38,8 +41,8 @@ model Order {
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
   createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+  updatedById Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deletedById Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   orderItems OrderItem[]
   payments   Payment[]
@@ -52,6 +55,7 @@ model Order {
 // 결제
 model Payment {
   id         Int           @id @default(autoincrement())
+  customerId Int           @map("customer_id") // 고객 account_id
   orderId    Int           @map("order_id") // 주문 ID
   status     PaymentStatus @default(PENDING) // 결제 상태
   amount     Int           @db.Integer // 결제 금액
@@ -60,7 +64,7 @@ model Payment {
   provider   String?       @db.VarChar(20) // 결제 PG사
 
   requestedAt DateTime  @default(now()) @map("requested_at")
-  approvedAt  DateTime? @map("approved_at")
+  paidAt      DateTime? @map("paid_at")
 
   order  Order   @relation(fields: [orderId], references: [id])
   refund Refund?
@@ -102,8 +106,8 @@ model Product {
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
   createdById Int? @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+  updatedById Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deletedById Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   orderItems OrderItem[]
   cart       Cart[]
@@ -126,8 +130,8 @@ model OrderItem {
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
   createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+  updatedById Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deletedById Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id]) // 상품
@@ -147,8 +151,8 @@ model Category {
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
   createdById Int? @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+  updatedById Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deletedById Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   @@index([name])
   @@map("category")
@@ -199,8 +203,8 @@ model Cart {
   deletedAt DateTime? @map("deleted_at") // 삭제일
 
   createdById Int  @map("created_by_id") @db.Integer // 생성한 유저
-  updateById  Int? @map("updated_by_id") @db.Integer // 수정한 유저
-  deleteById  Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
+  updatedById Int? @map("updated_by_id") @db.Integer // 수정한 유저
+  deletedById Int? @map("deleted_by_id") @db.Integer // 삭제한 유저
 
   product Product @relation(fields: [productId], references: [id]) // 상품
 
