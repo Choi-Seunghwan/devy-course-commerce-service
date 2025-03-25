@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderRepository } from './order.repository';
 import { OrderProduct } from './dtos/order.dto';
 import { OrderStatus } from '@prisma/client';
@@ -12,6 +16,13 @@ export class OrderService {
     private readonly productService: ProductService,
   ) {}
 
+  async getOrder(orderId: number) {
+    return await this.orderRepository.getOrderById(orderId);
+  }
+
+  /**
+   * 주문하기
+   */
   async order(
     customerId: number,
     orderData: { orderProducts: OrderProduct[]; totalPrice: number },
@@ -40,6 +51,30 @@ export class OrderService {
           })),
         },
       },
+    });
+  }
+
+  /**
+   * 결제 시, 주문 데이터 확인
+   */
+  async validateAndGetOrderForPayment(orderId: number) {
+    const order = await this.getOrder(orderId);
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (order.status !== OrderStatus.PENDING)
+      throw new BadRequestException('Order is not in pending status');
+
+    return order;
+  }
+
+  /**
+   * 주문 준비 상태로 변경
+   */
+  async updateOrderAsReady(orderId: number, updatedById: number) {
+    await this.orderRepository.updateOrder({
+      where: { id: orderId },
+      data: { status: OrderStatus.READY, updatedAt: new Date(), updatedById },
     });
   }
 }

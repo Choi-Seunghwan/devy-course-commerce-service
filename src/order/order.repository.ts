@@ -13,4 +13,14 @@ export class OrderRepository {
   async createOrderItems(args: Prisma.OrderItemCreateArgs) {
     return await this.prisma.orderItem.create(args);
   }
+
+  async getOrderById(id: number) {
+    return await this.prisma.order.findUnique({
+      where: { id, deletedAt: null },
+    });
+  }
+
+  async updateOrder(args: Prisma.OrderUpdateArgs) {
+    return await this.prisma.order.update(args);
+  }
 }
