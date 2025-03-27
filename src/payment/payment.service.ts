@@ -22,6 +22,11 @@ export class PaymentService {
    * 결제 요청
    */
   async requestPayment(customerId: number, order: Order) {
+    if (order.status !== PaymentStatus.PENDING)
+      throw new InternalServerErrorException(
+        'Payment is not in pending status',
+      );
+
     const alreadyPayment = await this.paymentRepository.findPayment({
       where: {
         customerId,
@@ -29,22 +34,20 @@ export class PaymentService {
       },
     });
 
-    if (order.status !== PaymentStatus.PENDING)
-      throw new InternalServerErrorException(
-        'Payment is not in pending status',
-      );
+    if (alreadyPayment) return alreadyPayment.paymentKey;
+    else {
+      const payment = await this.paymentRepository.createPayment({
+        data: {
+          paymentKey: generatePaymentKey(),
+          customerId,
+          orderId: order.id,
+          amount: order.totalPrice,
+          status: PaymentStatus.PENDING,
+        },
+      });
 
-    if (alreadyPayment) return alreadyPayment;
-
-    await this.paymentRepository.createPayment({
-      data: {
-        paymentKey: generatePaymentKey(),
-        customerId,
-        orderId: order.id,
-        amount: order.totalPrice,
-        status: PaymentStatus.PENDING,
-      },
-    });
+      return payment.paymentKey;
+    }
   }
 
   @Transactional()

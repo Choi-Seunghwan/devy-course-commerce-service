@@ -1,4 +1,3 @@
-import { Transactional } from '@nestjs-cls/transactional';
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
@@ -8,7 +7,6 @@ export class PrismaService extends PrismaClient {
     await this.$connect();
   }
 
-  @Transactional()
   async executeTransaction(callback: (prisma: PrismaClient) => Promise<any>) {
     return await callback(this);
   }

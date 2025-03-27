@@ -25,10 +25,16 @@ export class PaymentController {
       dto.orderId,
     );
 
-    return await this.paymentService.requestPayment(user.accountId, order);
+    const paymentKey = await this.paymentService.requestPayment(
+      user.accountId,
+      order,
+    );
+
+    return { paymentKey };
   }
 
   @Post('/complete')
+  @UseGuards(AuthGuard)
   async completePayment(
     @User() user: JwtPayload,
     @Body() dto: CompletePaymentDto,

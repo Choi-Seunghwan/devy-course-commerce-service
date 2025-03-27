@@ -9,8 +9,8 @@ export class CartRepository {
   private getOmit() {
     return {
       createdById: true,
-      updateById: true,
-      deleteById: true,
+      updatedById: true,
+      deletedById: true,
       deletedAt: true,
     };
   }

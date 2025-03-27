@@ -8,10 +8,10 @@ export class PortOneService {
 
   async getPortOnePayment(paymentKey: string): Promise<PortOnePayment> {
     const response = await fetch(
-      `https://api.portone.io/payments/${encodeURIComponent(paymentKey)}`,
+      `https://api.portone.io/payments/${encodeURIComponent(paymentKey)}?storeId=${this.configService.getOrThrow('PORTONE_STORE_ID')}`,
       {
         headers: {
-          Authorization: `PortOne ${this.configService.getOrThrow('portOneSecret')}`,
+          Authorization: `PortOne ${this.configService.getOrThrow('PORTONE_API_KEY')}`,
         },
       },
     );
@@ -21,7 +21,6 @@ export class PortOneService {
         `Failed to get Portone payment: ${response.status} - ${response.statusText}`,
       );
     }
-
     return response.json().then((res) => res.data);
   }
 

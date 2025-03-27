@@ -1,6 +1,6 @@
 export const getProductOmitFields = () => ({
   createdById: true,
-  updateById: true,
-  deleteById: true,
+  updatedById: true,
+  deletedById: true,
   deletedAt: true,
 });
