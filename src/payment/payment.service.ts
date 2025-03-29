@@ -61,6 +61,8 @@ export class PaymentService {
     if (payment.customerId !== customerId)
       throw new ForbiddenException('not allowed');
 
+    if (payment.status === PaymentStatus.PAID) return true /* already paid */;
+
     if (payment.status !== PaymentStatus.PENDING)
       throw new InternalServerErrorException(
         'Payment is not in pending status',
@@ -72,5 +74,7 @@ export class PaymentService {
     });
 
     await this.orderService.updateOrderAsReady(payment.orderId, customerId);
+
+    return true;
   }
 }

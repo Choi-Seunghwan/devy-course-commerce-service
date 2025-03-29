@@ -21,7 +21,8 @@ export class PortOneService {
         `Failed to get Portone payment: ${response.status} - ${response.statusText}`,
       );
     }
-    return response.json().then((res) => res.data);
+
+    return await response.json();
   }
 
   async validatePaidPortOnePayment(paymentKey: string) {

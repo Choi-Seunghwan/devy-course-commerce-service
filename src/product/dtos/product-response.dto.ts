@@ -4,9 +4,14 @@ export class ProductResponseDto {
   id: number;
   name: string;
   price: number;
-
-  category?: CategoryResponseDto;
+  categoryId: number;
+  images: string[];
+  description?: string;
 
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
+  createdById: number;
+  updatedById: number;
+
+  category?: CategoryResponseDto;
 }

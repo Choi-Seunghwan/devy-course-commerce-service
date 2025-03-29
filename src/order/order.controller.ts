@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { AuthGuard, JwtPayload, User } from '@choi-seunghwan/authorization';
 import { OrderDto } from './dtos/order.dto';
@@ -13,9 +13,9 @@ export class OrderController {
     private readonly cartService: CartService,
   ) {}
 
-  @Post('/')
   @ApiOkResponse({ type: OrderResponseDto })
   @UseGuards(AuthGuard)
+  @Post('/')
   async order(@User() user: JwtPayload, @Body() dto: OrderDto) {
     const createdOrder = await this.orderService.order(user.accountId, dto);
 
@@ -30,5 +30,12 @@ export class OrderController {
     }
 
     return createdOrder;
+  }
+
+  @ApiOkResponse({ type: OrderResponseDto, isArray: true })
+  @UseGuards(AuthGuard)
+  @Get('/')
+  async getOrders(@User() user: JwtPayload) {
+    return await this.orderService.getOrders(user.accountId);
   }
 }

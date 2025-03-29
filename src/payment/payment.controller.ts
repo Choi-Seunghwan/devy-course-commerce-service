@@ -33,8 +33,9 @@ export class PaymentController {
     return { paymentKey };
   }
 
-  @Post('/complete')
+  @ApiOkResponse({ type: Boolean })
   @UseGuards(AuthGuard)
+  @Post('/complete')
   async completePayment(
     @User() user: JwtPayload,
     @Body() dto: CompletePaymentDto,

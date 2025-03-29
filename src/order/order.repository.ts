@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { OrderStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
@@ -22,5 +22,18 @@ export class OrderRepository {
 
   async updateOrder(args: Prisma.OrderUpdateArgs) {
     return await this.prisma.order.update(args);
+  }
+
+  async getOrdersByCustomerId(customerId: number) {
+    return await this.prisma.order.findMany({
+      where: {
+        customerId,
+        deletedAt: null,
+        NOT: { status: OrderStatus.PENDING },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { orderItems: { include: { product: true } }, payments: true },
+      omit: { deletedAt: true, deletedById: true },
+    });
   }
 }

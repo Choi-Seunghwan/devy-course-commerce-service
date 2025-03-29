@@ -21,6 +21,13 @@ export class OrderService {
   }
 
   /**
+   * 주문 내역 조회
+   */
+  async getOrders(customerId: number) {
+    return await this.orderRepository.getOrdersByCustomerId(customerId);
+  }
+
+  /**
    * 주문하기
    */
   async order(
