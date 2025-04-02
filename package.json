@@ -1,8 +1,8 @@
 {
-  "name": "devy-course-commerce-service",
-  "version": "0.0.1",
+  "name": "shop-commerce-service",
+  "version": "0.1.0",
   "description": "",
-  "author": "",
+  "author": "Choi-Seunghwan",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
