@@ -1,6 +1,6 @@
 # shop-commerce-service
 
-예제용 주문/결제 백엔드 프로젝트 입니다.
+상품 주문/결제 백엔드 예시 프로젝트 (NestJS)
 
 ### Link
 
