@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { OrderRepository } from './order.repository';
@@ -8,12 +9,14 @@ import { OrderProduct } from './dtos/order.dto';
 import { OrderStatus } from '@prisma/client';
 import { ProductService } from 'src/product/product.service';
 import generateOrderNo from './utils/generate-order-no';
+import { AccountClientService } from 'src/account/account-client.service';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly productService: ProductService,
+    private readonly accountClientService: AccountClientService,
   ) {}
 
   async getOrder(orderId: number) {
@@ -34,6 +37,10 @@ export class OrderService {
     customerId: number,
     orderData: { orderProducts: OrderProduct[]; totalPrice: number },
   ) {
+    const customer = await this.accountClientService.getUserInfo(customerId);
+
+    if (!customer) throw new InternalServerErrorException('Customer not found');
+
     const products = await this.productService.getProductsByIds(
       orderData.orderProducts.map((item) => item.productId),
     );
